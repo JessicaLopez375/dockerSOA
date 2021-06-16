@@ -1,0 +1,73 @@
+version: '3.3'
+services:
+  tomcat:
+    image: magm3333/tomcat:9.0.43
+    container_name: tomcat
+    restart: always
+    ports:
+      - '80:8080'
+      - '443:8443'
+    expose:
+      - '8080'
+      - '8443'
+    volumes:
+      - ./tomcat/webapps:/opt/tomcat/webapps
+      - ./tomcat/conf:/opt/tomcat/conf
+      - ./tomcat/bin/setenv.sh:/opt/tomcat/bin/setenv.sh
+      - ./tomcat/cert:/opt/tomcat/cert
+    networks:
+      mired:
+        ipv4_address: 172.20.1.7
+  nodered:
+    image: nodered/node-red
+    container_name: nodered
+    restart: always
+    privileged: true
+    ports:
+      - '1880:1880'
+    expose:
+      - '1880'
+    volumes:
+      - /dev:/dev
+      - ./node-red-data:/data    
+    networks:
+      mired:
+        ipv4_address: 172.20.1.4
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto
+    restart: always
+    ports:
+      - '1883:1883'
+      - '9001:9001'
+    expose:
+      - '1883'
+      - '9001'
+    volumes:
+       - ./mosquitto:/mosquitto/config 
+    networks:
+      mired:
+        ipv4_address: 172.20.1.5
+  mysql:
+    image: mysql:5.7.33
+    container_name: mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=pwdiu4
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pwdiu4
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - ./mysql57/conf:/etc/mysql/conf.d
+    networks:
+      mired:
+        ipv4_address: 172.20.1.6
+networks:
+  mired:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.1.0/24
